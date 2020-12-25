@@ -83,7 +83,6 @@ print('Cleaning Text')
 s_text = re.sub(r'[{}]'.format(punctuation), ' ', s_text)
 s_text = re.sub('\s+', ' ', s_text).strip().lower()
 
-
 # Build word vocabulary function
 def build_vocab(text, min_freq):
     word_counts = collections.Counter(text.split(' '))
@@ -118,7 +117,6 @@ for ix, x in enumerate(s_text_words):
         s_text_ix.append(0)
 s_text_ix = np.array(s_text_ix)
 
-
 # Define LSTM RNN Model
 class LSTM_Model():
     def __init__(self, embedding_size, rnn_size, batch_size, learning_rate,
@@ -136,7 +134,9 @@ class LSTM_Model():
             self.batch_size = batch_size
             self.training_seq_len = training_seq_len
 
+        # define lstm cell
         self.lstm_cell = tf.contrib.rnn.BasicLSTMCell(self.rnn_size)
+        # return zero-filled state tensor(s).
         self.initial_state = self.lstm_cell.zero_state(self.batch_size, tf.float32)
 
         self.x_data = tf.placeholder(tf.int32, [self.batch_size, self.training_seq_len])
@@ -166,6 +166,7 @@ class LSTM_Model():
             out = tf.nn.embedding_lookup(embedding_mat, prev_symbol)
             return out
 
+        # decoder returns a tuple of the form (outputs, state)
         decoder = tf.contrib.legacy_seq2seq.rnn_decoder
         outputs, last_state = decoder(rnn_inputs_trimmed,
                                       self.initial_state,
@@ -186,6 +187,7 @@ class LSTM_Model():
         optimizer = tf.train.AdamOptimizer(self.learning_rate)
         self.train_op = optimizer.apply_gradients(zip(gradients, tf.trainable_variables()))
 
+    # embedding the sample input for test
     def sample(self, sess, words=ix2vocab, vocab=vocab2ix, num=10, prime_text='thou art'):
         state = sess.run(self.lstm_cell.zero_state(1, tf.float32))
         word_list = prime_text.split()
@@ -241,6 +243,7 @@ for epoch in range(epochs):
     # Shuffle word indices
     random.shuffle(batches)
     # Create targets from shuffled batches
+    # the target of a word/sencence is the next word
     targets = [np.roll(x, -1, axis=1) for x in batches]
     # Run a through one epoch
     print('Starting Epoch #{} of {}.'.format(epoch+1, epochs))

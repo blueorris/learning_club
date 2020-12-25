@@ -77,6 +77,7 @@ text_data_train = [clean_text(x) for x in text_data_train]
 vocab_processor = tf.contrib.learn.preprocessing.VocabularyProcessor(max_sequence_length,
                                                                      min_frequency=min_word_frequency)
 text_processed = np.array(list(vocab_processor.fit_transform(text_data_train)))
+print(text_processed)
 
 # Shuffle data
 text_processed = np.array(text_processed)
